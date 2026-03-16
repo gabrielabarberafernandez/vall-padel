@@ -204,14 +204,18 @@
             });
         }
 
-        async function cargarBaseAlumnos() {
+       async function cargarBaseAlumnos() {
             try {
-                // Usamos una URL limpia para evitar bloqueos
-                const res = await fetch(URL_API + "?obtener=alumnos");
-                if (!res.ok) throw new Error('Error en red');
+                const urlAlumnos = URL_API + "?obtener=alumnos";
+                // Usamos una petición limpia sin headers para que Google permita la redirección
+                const res = await fetch(urlAlumnos, {
+                    method: "GET",
+                    mode: "cors",
+                    redirect: "follow"
+                });
                 
                 baseDatosAlumnos = await res.json();
-                console.log("¡Alumnos cargados con éxito!");
+                console.log("¡Alumnos cargados!");
             } catch (error) {
                 console.error("Error alumnos:", error);
             }
@@ -289,21 +293,22 @@
             cuerpo.innerHTML = "<tr><td colspan='3'>Cargando...</td></tr>";
 
             try {
-                // Añadimos timestamp para evitar que el navegador use datos viejos
                 const urlCal = URL_API + "?t=" + new Date().getTime();
-                const respuesta = await fetch(urlCal);
+                const respuesta = await fetch(urlCal, {
+                    method: "GET",
+                    mode: "cors",
+                    redirect: "follow"
+                });
                 const datos = await respuesta.json();
                 
                 cuerpo.innerHTML = ""; 
                 datos.forEach(fila => {
                     const tr = document.createElement('tr');
-                    // Limpiamos el formato del horario si fuera necesario
                     const horarioLimpio = fila[3] ? fila[3].replace(/^[0-9]-/, "") : "N/A"; 
                     tr.innerHTML = `<td>${fila[1]}</td><td>${horarioLimpio}</td><td><strong>${fila[2]}</strong></td>`;
                     cuerpo.appendChild(tr);
                 });
             } catch (error) {
-                console.error("Error calendario:", error);
                 cuerpo.innerHTML = "<tr><td colspan='3'>Error al cargar datos.</td></tr>";
             }
         }
