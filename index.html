@@ -179,7 +179,7 @@
     </div>
 
     <script>
-        const URL_API = "https://script.google.com/macros/library/d/1iVRdjc-_U3HDEWlfMrhN--3Ym59riv--78KQWwMkGL4CC0_y__wTR9bY/13";
+       const URL_API = "https://script.google.com/macros/s/AKfycbyniiYvvur4aH3lfHkIiFIV7PD1QOKfrCvmjA0sLSLLtjxZ61GDMGgtMc8MLFOZQVQY/exec";
         const NOMBRES_INSTRUCTORES = ["Dani", "Vicen", "Laura", "Nacho"];
         let baseDatosAlumnos = [];
 
@@ -206,32 +206,26 @@
 
         async function cargarBaseAlumnos() {
             try {
-                const urlAlumnos = URL_API + "?obtener=alumnos"; // Quitamos el timestamp por ahora
-                const res = await fetch(urlAlumnos, {
-                    method: 'GET',
-                    mode: 'cors', // Forzamos el modo cors
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                });
-                
-                // Si el fetch normal falla por CORS, Google a veces prefiere que no enviemos headers
-                // Intenta primero así, y si falla, prueba borrando la parte de 'headers'
+                // Usamos una URL limpia para evitar bloqueos
+                const res = await fetch(URL_API + "?obtener=alumnos");
+                if (!res.ok) throw new Error('Error en red');
                 
                 baseDatosAlumnos = await res.json();
-                console.log("Alumnos cargados");
+                console.log("¡Alumnos cargados con éxito!");
             } catch (error) {
                 console.error("Error alumnos:", error);
             }
         }
 
-       
-
+        // Lógica para filtrar alumnos según el instructor seleccionado
         document.getElementById('ins_pago').addEventListener('change', function() {
             const instructor = this.value;
             const selectEstudiante = document.getElementById('estudiante_pago');
+            
             selectEstudiante.innerHTML = '<option value="">Selecciona estudiante...</option>';
+            
             baseDatosAlumnos.forEach(fila => {
+                // fila[0] es el Instructor, fila[1] es el Alumno
                 if (fila[0] === instructor) {
                     let opt = document.createElement('option');
                     opt.value = fila[1];
@@ -243,16 +237,18 @@
 
         async function enviarAGoogle(datos) {
             try {
+                // Importante: mode 'no-cors' permite enviar datos sin que Google bloquee la petición
                 await fetch(URL_API, {
                     method: 'POST',
                     mode: 'no-cors', 
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(datos)
                 });
-                alert("¡Datos guardados con éxito!");
+                alert("¡Datos enviados correctamente!");
                 return true;
             } catch (error) {
-                alert("Error de conexión");
+                console.error("Error al enviar:", error);
+                alert("Error de conexión al guardar");
                 return false;
             }
         }
@@ -276,12 +272,13 @@
             const info = {
                 tipo: "Ocupacion",
                 pista: document.getElementById('pista_num').value,
-                grupo: document.getElementById('nombre_grupo').value,
+                group: document.getElementById('nombre_grupo').value,
                 horario: `${dia} | ${hora} (${duracion})`,
                 instructor: document.getElementById('ins_ocupacion').value
             };
             if (await enviarAGoogle(info)) {
                 e.target.reset();
+                // Esperamos 2 segundos para que Google procese y recargamos el calendario
                 setTimeout(cargarCalendario, 2000);
             }
         });
@@ -292,6 +289,7 @@
             cuerpo.innerHTML = "<tr><td colspan='3'>Cargando...</td></tr>";
 
             try {
+                // Añadimos timestamp para evitar que el navegador use datos viejos
                 const urlCal = URL_API + "?t=" + new Date().getTime();
                 const respuesta = await fetch(urlCal);
                 const datos = await respuesta.json();
@@ -299,11 +297,13 @@
                 cuerpo.innerHTML = ""; 
                 datos.forEach(fila => {
                     const tr = document.createElement('tr');
-                    const horarioLimpio = fila[3].replace(/^[0-9]-/, ""); 
+                    // Limpiamos el formato del horario si fuera necesario
+                    const horarioLimpio = fila[3] ? fila[3].replace(/^[0-9]-/, "") : "N/A"; 
                     tr.innerHTML = `<td>${fila[1]}</td><td>${horarioLimpio}</td><td><strong>${fila[2]}</strong></td>`;
                     cuerpo.appendChild(tr);
                 });
             } catch (error) {
+                console.error("Error calendario:", error);
                 cuerpo.innerHTML = "<tr><td colspan='3'>Error al cargar datos.</td></tr>";
             }
         }
