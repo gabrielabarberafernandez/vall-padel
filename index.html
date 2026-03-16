@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vall Pádel - Gestión Diaria</title>
+    <style>
+        :root {
+            --verde-padel: #2ecc71;
+            --verde-oscuro: #27ae60;
+            --fondo: #f8f9fa;
+            --texto: #2c3e50;
+            --blanco: #ffffff;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            background-color: var(--fondo); 
+            color: var(--texto);
+            margin: 0; 
+            padding: 10px; 
+        }
+
+        .container { 
+            max-width: 600px; 
+            margin: 20px auto; 
+            background: var(--blanco); 
+            padding: 30px; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
+        }
+
+        .header-logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header-logo img {
+            max-width: 150px;
+            height: auto;
+        }
+
+        h1 { font-size: 26px; font-weight: 700; color: var(--verde-oscuro); margin-bottom: 5px; }
+        h2 { font-size: 18px; color: #7f8c8d; margin-top: 25px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+
+        label { display: block; margin-top: 15px; font-weight: 600; font-size: 14px; }
+
+        select, input { 
+            width: 100%; 
+            padding: 12px; 
+            margin-top: 6px; 
+            border-radius: 8px; 
+            border: 1px solid #dcdde1; 
+            font-size: 16px; 
+            box-sizing: border-box; 
+            transition: border 0.3s;
+        }
+
+        select:focus, input:focus {
+            border-color: var(--verde-padel);
+            outline: none;
+        }
+
+        button { 
+            width: 100%; 
+            padding: 15px; 
+            margin-top: 20px; 
+            border-radius: 8px; 
+            border: none; 
+            color: white; 
+            font-weight: bold; 
+            font-size: 16px;
+            cursor: pointer; 
+            transition: background 0.3s; 
+        }
+
+        .btn-pago { background-color: var(--verde-padel); }
+        .btn-pago:hover { background-color: var(--verde-oscuro); }
+
+        .btn-pista { background-color: #34495e; }
+        .btn-pista:hover { background-color: #2c3e50; }
+
+        table { width: 100%; margin-top: 15px; border-collapse: collapse; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #f1f2f6; color: #57606f; font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-logo">
+            <img src="logo-vall-padel.png" alt="Vall Pádel" onerror="this.style.display='none'">
+            <h1>Vall Pádel 🎾</h1>
+            <p style="color: #95a5a6; margin-top: 10px; font-size: 0.9em;">Gestión de Instructores</p>
+        </div>
+
+        <section>
+            <h2>💰 Registro de Pago (Efectivo)</h2>
+            <form id="formPago">
+                <label>Instructor:</label>
+                <select id="ins_pago" required></select>
+
+                <label>Estudiante:</label>
+                <select id="estudiante_pago" required>
+                    <option value="">Selecciona Instructor primero...</option>
+                </select>
+
+                <label>Monto:</label>
+                <input type="number" id="monto" placeholder="Monto en efectivo" required>
+                
+                <button type="submit" class="btn-pago">Registrar Pago</button>
+            </form>
+        </section>
+
+        <section>
+            <h2>🎾 Registro de Ocupación de Pistas</h2>
+            <form id="formOcupacion">
+                <label>Pista:</label>
+                <select id="pista_num">
+                    <option value="Pista 1">Pista 1</option>
+                    <option value="Pista 2">Pista 2</option>
+                </select>
+
+                <label>Nombre del Grupo / Alumno:</label>
+                <input type="text" id="nombre_grupo" placeholder="Ej: Grupo Dani" required>
+
+                <label>Día de la semana:</label>
+                <select id="dia_semana">
+                    <option value="1-Lunes">Lunes</option>
+                    <option value="2-Martes">Martes</option>
+                    <option value="3-Miércoles">Miércoles</option>
+                    <option value="4-Jueves">Jueves</option>
+                    <option value="5-Viernes">Viernes</option>
+                </select>
+
+                <label>Hora de inicio:</label>
+                <select id="hora_inicio">
+                    <option value="17:00">17:00</option>
+                    <option value="17:30">17:30</option>
+                    <option value="18:00">18:00</option>
+                    <option value="18:30">18:30</option>
+                    <option value="19:00">19:00</option>
+                    <option value="19:30">19:30</option>
+                    <option value="20:00">20:00</option>
+                    <option value="20:30">20:30</option>
+                    <option value="21:00">21:00</option>
+                </select>
+
+                <label>Duración:</label>
+                <select id="duracion_clase">
+                    <option value="1h">1 hora</option>
+                    <option value="1.5h">1.5 horas</option>
+                </select>
+                
+                <label>Instructor:</label>
+                <select id="ins_ocupacion" required></select>
+
+                <button type="submit" class="btn-pista">Registrar en Calendario</button>
+            </form>
+        </section>
+
+        <hr>
+
+        <section>
+            <h2>📅 Calendario de Pistas</h2>
+            <button onclick="cargarCalendario()" style="background-color: #f39c12; margin-bottom: 10px; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; width: auto;">🔄 Actualizar</button>
+            <div style="overflow-x: auto;">
+                <table id="tablaCalendario">
+                    <thead>
+                        <tr style="background: #2c3e50; color: white;">
+                            <th>Pista</th>
+                            <th>Horario / Día</th>
+                            <th>Grupo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoCalendario"></tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const URL_API = "https://script.google.com/macros/s/AKfycbyniiYvvur4aH3lfHkIiFIV7PD1QOKfrCvmjA0sLSLLtjxZ61GDMGgtMc8MLFOZQVQY/exec";
+        const NOMBRES_INSTRUCTORES = ["Dani", "Vicen", "Laura", "Nacho"];
+        let baseDatosAlumnos = [];
+
+        window.onload = async function() {
+            cargarNombresInstructores();
+            await cargarCalendario();
+            await cargarBaseAlumnos();
+        };
+
+        function cargarNombresInstructores() {
+            const selects = [document.getElementById('ins_pago'), document.getElementById('ins_ocupacion')];
+            selects.forEach(select => {
+                if (select) {
+                    select.innerHTML = '<option value="">-- Selecciona --</option>';
+                    NOMBRES_INSTRUCTORES.forEach(nombre => {
+                        let option = document.createElement('option');
+                        option.value = nombre;
+                        option.text = nombre;
+                        select.appendChild(option);
+                    });
+                }
+            });
+        }
+
+        async function cargarBaseAlumnos() {
+            try {
+                const res = await fetch(URL_API + "?obtener=alumnos");
+                baseDatosAlumnos = await res.json();
+            } catch (error) { console.error("Error alumnos:", error); }
+        }
+
+        document.getElementById('ins_pago').addEventListener('change', function() {
+            const instructor = this.value;
+            const selectEstudiante = document.getElementById('estudiante_pago');
+            selectEstudiante.innerHTML = '<option value="">Selecciona estudiante...</option>';
+            baseDatosAlumnos.forEach(fila => {
+                if (fila[0] === instructor) {
+                    let opt = document.createElement('option');
+                    opt.value = fila[1];
+                    opt.text = fila[1];
+                    selectEstudiante.appendChild(opt);
+                }
+            });
+        });
+
+        async function enviarAGoogle(datos) {
+            try {
+                await fetch(URL_API, {
+                    method: 'POST',
+                    mode: 'no-cors', 
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(datos)
+                });
+                alert("¡Datos guardados con éxito!");
+                return true;
+            } catch (error) {
+                alert("Error de conexión");
+                return false;
+            }
+        }
+
+        document.getElementById('formPago').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const info = {
+                tipo: "Pagos",
+                instructor: document.getElementById('ins_pago').value,
+                estudiante: document.getElementById('estudiante_pago').value,
+                monto: document.getElementById('monto').value
+            };
+            if (await enviarAGoogle(info)) e.target.reset();
+        });
+
+        document.getElementById('formOcupacion').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const dia = document.getElementById('dia_semana').value;
+            const hora = document.getElementById('hora_inicio').value;
+            const duracion = document.getElementById('duracion_clase').value;
+            const info = {
+                tipo: "Ocupacion",
+                pista: document.getElementById('pista_num').value,
+                grupo: document.getElementById('nombre_grupo').value,
+                horario: `${dia} | ${hora} (${duracion})`,
+                instructor: document.getElementById('ins_ocupacion').value
+            };
+            if (await enviarAGoogle(info)) {
+                e.target.reset();
+                setTimeout(cargarCalendario, 2000);
+            }
+        });
+
+        async function cargarCalendario() {
+            const cuerpo = document.getElementById('cuerpoCalendario');
+            cuerpo.innerHTML = "<tr><td colspan='3'>Cargando...</td></tr>";
+            try {
+                const respuesta = await fetch(URL_API);
+                const datos = await respuesta.json();
+                cuerpo.innerHTML = ""; 
+                datos.forEach(fila => {
+                    const tr = document.createElement('tr');
+                    const horarioLimpio = fila[3].replace(/^[0-9]-/, ""); 
+                    tr.innerHTML = `<td>${fila[1]}</td><td>${horarioLimpio}</td><td><strong>${fila[2]}</strong></td>`;
+                    cuerpo.appendChild(tr);
+                });
+            } catch (error) { cuerpo.innerHTML = "<tr><td colspan='3'>Error al cargar.</td></tr>"; }
+        }
+    </script>
+</body>
+</html>
