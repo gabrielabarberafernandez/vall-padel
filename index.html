@@ -179,7 +179,7 @@
     </div>
 
     <script>
-        const URL_API = "https://script.google.com/macros/s/AKfycbyniiYvvur4aH3lfHkIiFIV7PD1QOKfrCvmjA0sLSLLtjxZ61GDMGgtMc8MLFOZQVQY/exec";
+        const URL_API = "https://script.google.com/macros/library/d/1iVRdjc-_U3HDEWlfMrhN--3Ym59riv--78KQWwMkGL4CC0_y__wTR9bY/13";
         const NOMBRES_INSTRUCTORES = ["Dani", "Vicen", "Laura", "Nacho"];
         let baseDatosAlumnos = [];
 
@@ -206,10 +206,26 @@
 
         async function cargarBaseAlumnos() {
             try {
-                const res = await fetch(URL_API + "?obtener=alumnos");
+                const urlAlumnos = URL_API + "?obtener=alumnos"; // Quitamos el timestamp por ahora
+                const res = await fetch(urlAlumnos, {
+                    method: 'GET',
+                    mode: 'cors', // Forzamos el modo cors
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                // Si el fetch normal falla por CORS, Google a veces prefiere que no enviemos headers
+                // Intenta primero así, y si falla, prueba borrando la parte de 'headers'
+                
                 baseDatosAlumnos = await res.json();
-            } catch (error) { console.error("Error alumnos:", error); }
+                console.log("Alumnos cargados");
+            } catch (error) {
+                console.error("Error alumnos:", error);
+            }
         }
+
+       
 
         document.getElementById('ins_pago').addEventListener('change', function() {
             const instructor = this.value;
@@ -272,10 +288,14 @@
 
         async function cargarCalendario() {
             const cuerpo = document.getElementById('cuerpoCalendario');
+            if (!cuerpo) return;
             cuerpo.innerHTML = "<tr><td colspan='3'>Cargando...</td></tr>";
+
             try {
-                const respuesta = await fetch(URL_API);
+                const urlCal = URL_API + "?t=" + new Date().getTime();
+                const respuesta = await fetch(urlCal);
                 const datos = await respuesta.json();
+                
                 cuerpo.innerHTML = ""; 
                 datos.forEach(fila => {
                     const tr = document.createElement('tr');
@@ -283,7 +303,9 @@
                     tr.innerHTML = `<td>${fila[1]}</td><td>${horarioLimpio}</td><td><strong>${fila[2]}</strong></td>`;
                     cuerpo.appendChild(tr);
                 });
-            } catch (error) { cuerpo.innerHTML = "<tr><td colspan='3'>Error al cargar.</td></tr>"; }
+            } catch (error) {
+                cuerpo.innerHTML = "<tr><td colspan='3'>Error al cargar datos.</td></tr>";
+            }
         }
     </script>
 </body>
