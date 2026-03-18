@@ -179,16 +179,19 @@
     </div>
 
     <script>
-       const URL_API = "https://script.google.com/macros/s/AKfycbyniiYvvur4aH3lfHkIiFIV7PD1QOKfrCvmjA0sLSLLtjxZ61GDMGgtMc8MLFOZQVQY/exec";
+        // 1. Configuración Inicial
+        const URL_API = "https://script.google.com/macros/s/AKfycbyniiYvvur4aH3lfHkIiFIV7PD1QOKfrCvmjA0sLSLLtjxZ61GDMGgtMc8MLFOZQVQY/exec";
         const NOMBRES_INSTRUCTORES = ["Dani", "Vicen", "Laura", "Nacho"];
         let baseDatosAlumnos = [];
 
+        // 2. Carga Inicial al abrir la web
         window.onload = async function() {
             cargarNombresInstructores();
             await cargarCalendario();
             await cargarBaseAlumnos();
         };
 
+        // Llenar los desplegables de instructores
         function cargarNombresInstructores() {
             const selects = [document.getElementById('ins_pago'), document.getElementById('ins_ocupacion')];
             selects.forEach(select => {
@@ -204,16 +207,11 @@
             });
         }
 
-       async function cargarBaseAlumnos() {
+        // 3. Obtener Alumnos desde Google
+        async function cargarBaseAlumnos() {
             try {
                 const urlAlumnos = URL_API + "?obtener=alumnos";
-                // Usamos una petición limpia sin headers para que Google permita la redirección
-                const res = await fetch(urlAlumnos, {
-                    method: "GET",
-                    mode: "cors",
-                    redirect: "follow"
-                });
-                
+                const res = await fetch(urlAlumnos, { redirect: "follow" });
                 baseDatosAlumnos = await res.json();
                 console.log("¡Alumnos cargados!");
             } catch (error) {
@@ -221,15 +219,13 @@
             }
         }
 
-        // Lógica para filtrar alumnos según el instructor seleccionado
+        // Filtrar alumnos por instructor
         document.getElementById('ins_pago').addEventListener('change', function() {
             const instructor = this.value;
             const selectEstudiante = document.getElementById('estudiante_pago');
-            
             selectEstudiante.innerHTML = '<option value="">Selecciona estudiante...</option>';
-            
+
             baseDatosAlumnos.forEach(fila => {
-                // fila[0] es el Instructor, fila[1] es el Alumno
                 if (fila[0] === instructor) {
                     let opt = document.createElement('option');
                     opt.value = fila[1];
@@ -239,12 +235,12 @@
             });
         });
 
+        // 4. Enviar Datos a Google (POST)
         async function enviarAGoogle(datos) {
             try {
-                // Importante: mode 'no-cors' permite enviar datos sin que Google bloquee la petición
                 await fetch(URL_API, {
                     method: 'POST',
-                    mode: 'no-cors', 
+                    mode: 'no-cors',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(datos)
                 });
@@ -252,11 +248,12 @@
                 return true;
             } catch (error) {
                 console.error("Error al enviar:", error);
-                alert("Error de conexión al guardar");
+                alert("Error de conexión");
                 return false;
             }
         }
 
+        // Manejo de Formulario de Pagos
         document.getElementById('formPago').addEventListener('submit', async (e) => {
             e.preventDefault();
             const info = {
@@ -268,25 +265,23 @@
             if (await enviarAGoogle(info)) e.target.reset();
         });
 
+        // Manejo de Formulario de Ocupación
         document.getElementById('formOcupacion').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const dia = document.getElementById('dia_semana').value;
-            const hora = document.getElementById('hora_inicio').value;
-            const duracion = document.getElementById('duracion_clase').value;
             const info = {
                 tipo: "Ocupacion",
                 pista: document.getElementById('pista_num').value,
                 group: document.getElementById('nombre_grupo').value,
-                horario: `${dia} | ${hora} (${duracion})`,
+                horario: `${document.getElementById('dia_semana').value} | ${document.getElementById('hora_inicio').value} (${document.getElementById('duracion_clase').value})`,
                 instructor: document.getElementById('ins_ocupacion').value
             };
             if (await enviarAGoogle(info)) {
                 e.target.reset();
-                // Esperamos 2 segundos para que Google procese y recargamos el calendario
                 setTimeout(cargarCalendario, 2000);
             }
         });
 
+        // 5. Cargar Calendario (GET)
         async function cargarCalendario() {
             const cuerpo = document.getElementById('cuerpoCalendario');
             if (!cuerpo) return;
@@ -294,24 +289,26 @@
 
             try {
                 const urlCal = URL_API + "?t=" + new Date().getTime();
-                const respuesta = await fetch(urlCal, {
-                    method: "GET",
-                    mode: "cors",
-                    redirect: "follow"
-                });
+                const respuesta = await fetch(urlCal, { redirect: "follow" });
                 const datos = await respuesta.json();
-                
-                cuerpo.innerHTML = ""; 
+
+                cuerpo.innerHTML = "";
                 datos.forEach(fila => {
-                    const tr = document.createElement('tr');
-                    const horarioLimpio = fila[3] ? fila[3].replace(/^[0-9]-/, "") : "N/A"; 
-                    tr.innerHTML = `<td>${fila[1]}</td><td>${horarioLimpio}</td><td><strong>${fila[2]}</strong></td>`;
-                    cuerpo.appendChild(tr);
+                    // Filtro para ignorar filas vacías o la cabecera
+                    if (fila[1] && fila[1] !== "" && fila[1] !== "Pista") {
+                        const tr = document.createElement('tr');
+                        const horarioLimpio = fila[3] ? fila[3].replace(/^[0-9]-/, "") : "N/A";
+                        tr.innerHTML = `<td>${fila[1]}</td><td>${horarioLimpio}</td><td><strong>${fila[2]}</strong></td>`;
+                        cuerpo.appendChild(tr);
+                    }
                 });
             } catch (error) {
+                console.error("Error calendario:", error);
                 cuerpo.innerHTML = "<tr><td colspan='3'>Error al cargar datos.</td></tr>";
             }
         }
     </script>
+
+    
 </body>
 </html>
