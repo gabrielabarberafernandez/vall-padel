@@ -223,20 +223,29 @@
         }
 
         // Filtrar alumnos por instructor
+       // Lógica para filtrar alumnos según el instructor seleccionado
         document.getElementById('ins_pago').addEventListener('change', function() {
-            const instructor = this.value;
+            const instructorSeleccionado = this.value; // El nombre que eliges (Dani, Laura...)
             const selectEstudiante = document.getElementById('estudiante_pago');
+
+            // Limpiamos el menú de estudiantes
             selectEstudiante.innerHTML = '<option value="">Selecciona estudiante...</option>';
 
+            console.log("Filtrando para instructor:", instructorSeleccionado);
+
             baseDatosAlumnos.forEach(fila => {
-                if (fila[0] === instructor) {
+                // IMPORTANTE: fila[0] es el Instructor, fila[1] es el Alumno en tu Excel
+                // Usamos .toString().trim() por si hay espacios invisibles en el Excel
+                if (fila[0] && fila[0].toString().trim() === instructorSeleccionado.trim()) {
                     let opt = document.createElement('option');
-                    opt.value = fila[1];
+                    opt.value = fila[1]; // Nombre del alumno
                     opt.text = fila[1];
                     selectEstudiante.appendChild(opt);
                 }
             });
         });
+
+        http://googleusercontent.com/immersive_entry_chip/0
 
         // 4. Enviar Datos a Google (POST)
         async function enviarAGoogle(datos) {
