@@ -210,12 +210,15 @@
         // 3. Obtener Alumnos desde Google
         async function cargarBaseAlumnos() {
             try {
-                const urlAlumnos = URL_API + "?obtener=alumnos";
-                const res = await fetch(urlAlumnos, { redirect: "follow" });
-                baseDatosAlumnos = await res.json();
-                console.log("¡Alumnos cargados!");
+                const res = await fetch(URL_API + "?obtener=alumnos", { redirect: "follow" });
+                const datosRaw = await res.json();
+                
+                // .slice(1) sirve para saltarse la primera fila si son los títulos (Instructor, Alumno)
+                baseDatosAlumnos = datosRaw.slice(1); 
+                
+                console.log("Alumnos cargados correctamente", baseDatosAlumnos);
             } catch (error) {
-                console.error("Error alumnos:", error);
+                console.error("Error al cargar alumnos:", error);
             }
         }
 
