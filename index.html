@@ -12,7 +12,6 @@
             --texto: #2c3e50;
             --blanco: #ffffff;
         }
-
         body { 
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
             background-color: var(--fondo); 
@@ -20,7 +19,6 @@
             margin: 0; 
             padding: 10px; 
         }
-
         .container { 
             max-width: 600px; 
             margin: 20px auto; 
@@ -29,243 +27,194 @@
             border-radius: 15px; 
             box-shadow: 0 10px 25px rgba(0,0,0,0.05); 
         }
-
-        .header-logo {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .header-logo img {
-            max-width: 150px;
-            height: auto;
-        }
-
-        h1 { font-size: 26px; font-weight: 700; color: var(--verde-oscuro); margin-bottom: 5px; }
-        h2 { font-size: 18px; color: #7f8c8d; margin-top: 25px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
-
-        label { display: block; margin-top: 15px; font-weight: 600; font-size: 14px; }
-
-        select, input { 
+        h1, h2 { text-align: center; color: var(--verde-oscuro); }
+        .section { margin-bottom: 40px; border-bottom: 2px solid #eee; padding-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: 600; margin-bottom: 5px; }
+        input, select { 
             width: 100%; 
             padding: 12px; 
-            margin-top: 6px; 
+            border: 1px solid #ddd; 
             border-radius: 8px; 
-            border: 1px solid #dcdde1; 
-            font-size: 16px; 
-            box-sizing: border-box; 
-            transition: border 0.3s;
+            box-sizing: border-box;
+            font-size: 16px;
         }
-
-        select:focus, input:focus {
-            border-color: var(--verde-padel);
-            outline: none;
-        }
-
         button { 
             width: 100%; 
             padding: 15px; 
-            margin-top: 20px; 
-            border-radius: 8px; 
-            border: none; 
+            background: var(--verde-padel); 
             color: white; 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 18px; 
             font-weight: bold; 
-            font-size: 16px;
-            cursor: pointer; 
-            transition: background 0.3s; 
+            cursor: pointer;
+            transition: background 0.3s;
         }
-
-        .btn-pago { background-color: var(--verde-padel); }
-        .btn-pago:hover { background-color: var(--verde-oscuro); }
-
-        .btn-pista { background-color: #34495e; }
-        .btn-pista:hover { background-color: #2c3e50; }
-
-        table { width: 100%; margin-top: 15px; border-collapse: collapse; border-radius: 8px; overflow: hidden; }
-        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
-        th { background-color: #f1f2f6; color: #57606f; font-weight: 600; }
+        button:hover { background: var(--verde-oscuro); }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background-color: #f1f8f4; color: var(--verde-oscuro); }
+        .refresh-btn { 
+            background: #3498db; 
+            margin-bottom: 10px; 
+            font-size: 14px; 
+            padding: 10px; 
+        }
     </style>
 </head>
 <body>
+
     <div class="container">
-        <div class="header-logo">
-            <img src="logo-vall-padel.png" alt="Vall Pádel" onerror="this.style.display='none'">
-            <h1>Vall Pádel 🎾</h1>
-            <p style="color: #95a5a6; margin-top: 10px; font-size: 0.9em;">Gestión de Instructores</p>
+        <h1>Vall Pádel 🎾</h1>
+
+        <!-- SECCIÓN 1: REGISTRO DE PAGO -->
+        <div class="section">
+            <h2>💰 Registro de Pago</h2>
+            <form id="formPago">
+                <div class="form-group">
+                    <label>Instructor</label>
+                    <select id="ins_pago" required>
+                        <option value="">-- Selecciona --</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Estudiante</label>
+                    <select id="estudiante_pago" required>
+                        <option value="">Selecciona instructor primero...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Monto (€)</label>
+                    <input type="number" id="monto" placeholder="Ej: 20" required>
+                </div>
+                <button type="submit">Registrar Pago</button>
+            </form>
         </div>
 
-        <section>
-            <h2>💰 Registro de Pago (Efectivo)</h2>
-            <form id="formPago">
-                <label>Instructor:</label>
-                <select id="ins_pago" required></select>
-
-                <label>Estudiante:</label>
-                <select id="estudiante_pago" required>
-                    <option value="">Selecciona Instructor primero...</option>
-                </select>
-
-                <label>Monto:</label>
-                <input type="number" id="monto" placeholder="Monto en efectivo" required>
-                
-                <button type="submit" class="btn-pago">Registrar Pago</button>
-            </form>
-        </section>
-
-        <section>
-            <h2>🎾 Registro de Ocupación de Pistas</h2>
+        <!-- SECCIÓN 2: OCUPACIÓN DE PISTAS -->
+        <div class="section">
+            <h2>📅 Ocupación de Pistas</h2>
             <form id="formOcupacion">
-                <label>Pista:</label>
-                <select id="pista_num">
-                    <option value="Pista 1">Pista 1</option>
-                    <option value="Pista 2">Pista 2</option>
-                </select>
-
-                <label>Nombre del Grupo / Alumno:</label>
-                <input type="text" id="nombre_grupo" placeholder="Ej: Grupo Dani" required>
-
-                <label>Día de la semana:</label>
-                <select id="dia_semana">
-                    <option value="1-Lunes">Lunes</option>
-                    <option value="2-Martes">Martes</option>
-                    <option value="3-Miércoles">Miércoles</option>
-                    <option value="4-Jueves">Jueves</option>
-                    <option value="5-Viernes">Viernes</option>
-                </select>
-
-                <label>Hora de inicio:</label>
-                <select id="hora_inicio">
-                    <option value="17:00">17:00</option>
-                    <option value="17:30">17:30</option>
-                    <option value="18:00">18:00</option>
-                    <option value="18:30">18:30</option>
-                    <option value="19:00">19:00</option>
-                    <option value="19:30">19:30</option>
-                    <option value="20:00">20:00</option>
-                    <option value="20:30">20:30</option>
-                    <option value="21:00">21:00</option>
-                </select>
-
-                <label>Duración:</label>
-                <select id="duracion_clase">
-                    <option value="1h">1 hora</option>
-                    <option value="1.5h">1.5 horas</option>
-                </select>
-                
-                <label>Instructor:</label>
-                <select id="ins_ocupacion" required></select>
-
-                <button type="submit" class="btn-pista">Registrar en Calendario</button>
+                <div class="form-group">
+                    <label>Pista</label>
+                    <select id="pista_num" required>
+                        <option value="1">Pista 1</option>
+                        <option value="2">Pista 2</option>
+                        <option value="3">Pista 3</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Nombre Grupo / Alumno</label>
+                    <input type="text" id="nombre_grupo" placeholder="Ej: Grupo Tarde" required>
+                </div>
+                <div class="form-group">
+                    <label>Día</label>
+                    <select id="dia_semana" required>
+                        <option value="Lunes">Lunes</option>
+                        <option value="Martes">Martes</option>
+                        <option value="Miércoles">Miércoles</option>
+                        <option value="Jueves">Jueves</option>
+                        <option value="Viernes">Viernes</option>
+                        <option value="Sábado">Sábado</option>
+                        <option value="Domingo">Domingo</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Hora Inicio</label>
+                    <input type="time" id="hora_inicio" required>
+                </div>
+                <div class="form-group">
+                    <label>Duración</label>
+                    <select id="duracion_clase">
+                        <option value="1h">1 hora</option>
+                        <option value="1.5h">1.5 horas</option>
+                        <option value="2h">2 horas</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Instructor</label>
+                    <select id="ins_ocupacion" required></select>
+                </div>
+                <button type="submit">Reservar Pista</button>
             </form>
-        </section>
+        </div>
 
-        <hr>
-
-        <section>
-            <h2>📅 Calendario de Pistas</h2>
-            <button onclick="cargarCalendario()" style="background-color: #f39c12; margin-bottom: 10px; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; width: auto;">🔄 Actualizar</button>
-            <div style="overflow-x: auto;">
-                <table id="tablaCalendario">
-                    <thead>
-                        <tr style="background: #2c3e50; color: white;">
-                            <th>Pista</th>
-                            <th>Horario / Día</th>
-                            <th>Grupo</th>
-                        </tr>
-                    </thead>
-                    <tbody id="cuerpoCalendario"></tbody>
-                </table>
-            </div>
-        </section>
+        <!-- SECCIÓN 3: CALENDARIO -->
+        <div class="section">
+            <h2>👀 Próximas Clases</h2>
+            <button class="refresh-btn" onclick="cargarCalendario()">🔄 Actualizar Calendario</button>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Pista</th>
+                        <th>Horario</th>
+                        <th>Grupo</th>
+                    </tr>
+                </thead>
+                <tbody id="cuerpoCalendario">
+                    <!-- Datos dinámicos -->
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <script>
-        // 1. Configuración Inicial
         const URL_API = "https://script.google.com/macros/s/AKfycbyniiYvvur4aH3lfHkIiFIV7PD1QOKfrCvmjA0sLSLLtjxZ61GDMGgtMc8MLFOZQVQY/exec";
         const NOMBRES_INSTRUCTORES = ["Dani", "Vicen", "Laura", "Nacho"];
         let baseDatosAlumnos = [];
 
-        // 2. Carga Inicial al abrir la web
         window.onload = async function() {
-            cargarNombresInstructores();
-            await cargarCalendario();
+            llenarInstructores();
             await cargarBaseAlumnos();
+            await cargarCalendario();
         };
 
-        // Llenar los desplegables de instructores
-        function cargarNombresInstructores() {
+        function llenarInstructores() {
             const selects = [document.getElementById('ins_pago'), document.getElementById('ins_ocupacion')];
             selects.forEach(select => {
-                if (select) {
-                    select.innerHTML = '<option value="">-- Selecciona --</option>';
-                    NOMBRES_INSTRUCTORES.forEach(nombre => {
-                        let option = document.createElement('option');
-                        option.value = nombre;
-                        option.text = nombre;
-                        select.appendChild(option);
-                    });
-                }
+                NOMBRES_INSTRUCTORES.forEach(nombre => {
+                    let opt = document.createElement('option');
+                    opt.value = nombre; opt.text = nombre;
+                    select.appendChild(opt);
+                });
             });
         }
 
-        // 3. Obtener Alumnos desde Google
         async function cargarBaseAlumnos() {
             try {
-                const res = await fetch(URL_API + "?obtener=alumnos", { redirect: "follow" });
-                const datosRaw = await res.json();
-                
-                // .slice(1) sirve para saltarse la primera fila si son los títulos (Instructor, Alumno)
-                baseDatosAlumnos = datosRaw.slice(1); 
-                
-                console.log("Alumnos cargados correctamente", baseDatosAlumnos);
-            } catch (error) {
-                console.error("Error al cargar alumnos:", error);
-            }
+                const res = await fetch(URL_API + "?obtener=alumnos");
+                const datos = await res.json();
+                // Saltamos cabecera y guardamos
+                baseDatosAlumnos = datos.slice(1);
+                console.log("Alumnos cargados:", baseDatosAlumnos.length);
+            } catch (e) { console.error("Error cargando alumnos", e); }
         }
 
-        // Filtrar alumnos por instructor
-       // Lógica para filtrar alumnos según el instructor seleccionado
+        // Filtro de alumnos por instructor
         document.getElementById('ins_pago').addEventListener('change', function() {
-            const instructorSeleccionado = this.value; // El nombre que eliges (Dani, Laura...)
-            const selectEstudiante = document.getElementById('estudiante_pago');
-
-            // Limpiamos el menú de estudiantes
-            selectEstudiante.innerHTML = '<option value="">Selecciona estudiante...</option>';
-
-            console.log("Filtrando para instructor:", instructorSeleccionado);
-
+            const ins = this.value.trim();
+            const selectEst = document.getElementById('estudiante_pago');
+            selectEst.innerHTML = '<option value="">Selecciona estudiante...</option>';
+            
             baseDatosAlumnos.forEach(fila => {
-                // IMPORTANTE: fila[0] es el Instructor, fila[1] es el Alumno en tu Excel
-                // Usamos .toString().trim() por si hay espacios invisibles en el Excel
-                if (fila[0] && fila[0].toString().trim() === instructorSeleccionado.trim()) {
+                // fila[0] = Instructor, fila[1] = Alumno
+                if (fila[0] && fila[0].toString().trim() === ins) {
                     let opt = document.createElement('option');
-                    opt.value = fila[1]; // Nombre del alumno
-                    opt.text = fila[1];
-                    selectEstudiante.appendChild(opt);
+                    opt.value = fila[1]; opt.text = fila[1];
+                    selectEst.appendChild(opt);
                 }
             });
         });
 
-        http://googleusercontent.com/immersive_entry_chip/0
-
-        // 4. Enviar Datos a Google (POST)
-        async function enviarAGoogle(datos) {
+        async function enviarDatos(datos) {
             try {
-                await fetch(URL_API, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(datos)
-                });
-                alert("¡Datos enviados correctamente!");
+                await fetch(URL_API, { method: 'POST', mode: 'no-cors', body: JSON.stringify(datos) });
+                alert("✅ Registrado con éxito");
                 return true;
-            } catch (error) {
-                console.error("Error al enviar:", error);
-                alert("Error de conexión");
-                return false;
-            }
+            } catch (e) { alert("❌ Error de envío"); return false; }
         }
 
-        // Manejo de Formulario de Pagos
         document.getElementById('formPago').addEventListener('submit', async (e) => {
             e.preventDefault();
             const info = {
@@ -274,10 +223,9 @@
                 estudiante: document.getElementById('estudiante_pago').value,
                 monto: document.getElementById('monto').value
             };
-            if (await enviarAGoogle(info)) e.target.reset();
+            if (await enviarDatos(info)) e.target.reset();
         });
 
-        // Manejo de Formulario de Ocupación
         document.getElementById('formOcupacion').addEventListener('submit', async (e) => {
             e.preventDefault();
             const info = {
@@ -287,40 +235,29 @@
                 horario: `${document.getElementById('dia_semana').value} | ${document.getElementById('hora_inicio').value} (${document.getElementById('duracion_clase').value})`,
                 instructor: document.getElementById('ins_ocupacion').value
             };
-            if (await enviarAGoogle(info)) {
+            if (await enviarDatos(info)) {
                 e.target.reset();
                 setTimeout(cargarCalendario, 2000);
             }
         });
 
-        // 5. Cargar Calendario (GET)
         async function cargarCalendario() {
             const cuerpo = document.getElementById('cuerpoCalendario');
-            if (!cuerpo) return;
             cuerpo.innerHTML = "<tr><td colspan='3'>Cargando...</td></tr>";
-
             try {
-                const urlCal = URL_API + "?t=" + new Date().getTime();
-                const respuesta = await fetch(urlCal, { redirect: "follow" });
-                const datos = await respuesta.json();
-
+                const res = await fetch(URL_API + "?t=" + new Date().getTime());
+                const datos = await res.json();
                 cuerpo.innerHTML = "";
                 datos.forEach(fila => {
-                    // Filtro para ignorar filas vacías o la cabecera
+                    // Solo filas con Pista (Columna B / fila[1])
                     if (fila[1] && fila[1] !== "" && fila[1] !== "Pista") {
                         const tr = document.createElement('tr');
-                        const horarioLimpio = fila[3] ? fila[3].replace(/^[0-9]-/, "") : "N/A";
-                        tr.innerHTML = `<td>${fila[1]}</td><td>${horarioLimpio}</td><td><strong>${fila[2]}</strong></td>`;
+                        tr.innerHTML = `<td>${fila[1]}</td><td>${fila[3] || ""}</td><td><strong>${fila[2] || ""}</strong></td>`;
                         cuerpo.appendChild(tr);
                     }
                 });
-            } catch (error) {
-                console.error("Error calendario:", error);
-                cuerpo.innerHTML = "<tr><td colspan='3'>Error al cargar datos.</td></tr>";
-            }
+            } catch (e) { cuerpo.innerHTML = "<tr><td colspan='3'>Error al cargar</td></tr>"; }
         }
     </script>
-
-    
 </body>
 </html>
