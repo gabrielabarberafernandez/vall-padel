@@ -136,7 +136,7 @@
                     <label>Instructor</label>
                     <select id="ins_ocupacion" required></select>
                 </div>
-                <button type="submit">Reservar Pista</button>
+                <button type="submit">Registrar</button>
             </form>
         </div>
 
@@ -159,105 +159,115 @@
         </div>
     </div>
 
-    <script>
-        const URL_API = "https://script.google.com/macros/s/AKfycbyniiYvvur4aH3lfHkIiFIV7PD1QOKfrCvmjA0sLSLLtjxZ61GDMGgtMc8MLFOZQVQY/exec";
-        const NOMBRES_INSTRUCTORES = ["Dani", "Vicen", "Laura", "Nacho"];
-        let baseDatosAlumnos = [];
+<script>
+    const URL_API = "https://script.google.com/macros/s/AKfycbyniiYvvur4aH3lfHkIiFIV7PD1QOKfrCvmjA0sLSLLtjxZ61GDMGgtMc8MLFOZQVQY/exec";
+    const NOMBRES_INSTRUCTORES = ["Dani", "Vicen", "Laura", "Nacho"];
+    let baseDatosAlumnos = [];
 
-        window.onload = async function() {
-            llenarInstructores();
-            await cargarBaseAlumnos();
-            await cargarCalendario();
-        };
+    window.onload = async function() {
+        llenarInstructores();
+        await cargarBaseAlumnos();
+        await cargarCalendario();
+    };
 
-        function llenarInstructores() {
-            const selects = [document.getElementById('ins_pago'), document.getElementById('ins_ocupacion')];
-            selects.forEach(select => {
-                NOMBRES_INSTRUCTORES.forEach(nombre => {
-                    let opt = document.createElement('option');
-                    opt.value = nombre; opt.text = nombre;
-                    select.appendChild(opt);
-                });
-            });
-        }
-
-        async function cargarBaseAlumnos() {
-            try {
-                const res = await fetch(URL_API + "?obtener=alumnos");
-                const datos = await res.json();
-                // Saltamos cabecera y guardamos
-                baseDatosAlumnos = datos.slice(1);
-                console.log("Alumnos cargados:", baseDatosAlumnos.length);
-            } catch (e) { console.error("Error cargando alumnos", e); }
-        }
-
-        // Filtro de alumnos por instructor
-        document.getElementById('ins_pago').addEventListener('change', function() {
-            const ins = this.value.trim();
-            const selectEst = document.getElementById('estudiante_pago');
-            selectEst.innerHTML = '<option value="">Selecciona estudiante...</option>';
-            
-            baseDatosAlumnos.forEach(fila => {
-                // fila[0] = Instructor, fila[1] = Alumno
-                if (fila[0] && fila[0].toString().trim() === instructor.trim()) {
-                    let opt = document.createElement('option');
-                    opt.value = fila[1]; opt.text = fila[1];
-                    selectEst.appendChild(opt);
-                }
+    function llenarInstructores() {
+        const selects = [document.getElementById('ins_pago'), document.getElementById('ins_ocupacion')];
+        selects.forEach(select => {
+            select.innerHTML = '<option value="">-- Selecciona --</option>';
+            NOMBRES_INSTRUCTORES.forEach(nombre => {
+                let opt = document.createElement('option');
+                opt.value = nombre; 
+                opt.text = nombre;
+                select.appendChild(opt);
             });
         });
+    }
 
-        async function enviarDatos(datos) {
-            try {
-                await fetch(URL_API, { method: 'POST', mode: 'no-cors', body: JSON.stringify(datos) });
-                alert("✅ Registrado con éxito");
-                return true;
-            } catch (e) { alert("❌ Error de envío"); return false; }
+    async function cargarBaseAlumnos() {
+        try {
+            const res = await fetch(URL_API + "?obtener=alumnos");
+            const datos = await res.json();
+            baseDatosAlumnos = datos.slice(1);
+            console.log("Alumnos cargados:", baseDatosAlumnos.length);
+        } catch (e) { 
+            console.error("Error cargando alumnos", e); 
         }
+    }
 
-        document.getElementById('formPago').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const info = {
-                tipo: "Pagos",
-                instructor: document.getElementById('ins_pago').value,
-                estudiante: document.getElementById('estudiante_pago').value,
-                monto: document.getElementById('monto').value
-            };
-            if (await enviarDatos(info)) e.target.reset();
-        });
-
-        document.getElementById('formOcupacion').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const info = {
-                tipo: "Ocupacion",
-                pista: document.getElementById('pista_num').value,
-                group: document.getElementById('nombre_grupo').value,
-                horario: `${document.getElementById('dia_semana').value} | ${document.getElementById('hora_inicio').value} (${document.getElementById('duracion_clase').value})`,
-                instructor: document.getElementById('ins_ocupacion').value
-            };
-            if (await enviarDatos(info)) {
-                e.target.reset();
-                setTimeout(cargarCalendario, 2000);
+    // Filtro de alumnos corregido con .trim() para evitar errores de espacios
+    document.getElementById('ins_pago').addEventListener('change', function() {
+        const insSeleccionado = this.value.trim();
+        const selectEst = document.getElementById('estudiante_pago');
+        
+        selectEst.innerHTML = '<option value="">Selecciona estudiante...</option>';
+        
+        baseDatosAlumnos.forEach(fila => {
+            // fila[0] es Instructor, fila[1] es Alumno en tu Google Sheets
+            if (fila[0] && fila[0].toString().trim() === insSeleccionado) {
+                let opt = document.createElement('option');
+                opt.value = fila[1]; 
+                opt.text = fila[1];
+                selectEst.appendChild(opt);
             }
         });
+    });
 
-        async function cargarCalendario() {
-            const cuerpo = document.getElementById('cuerpoCalendario');
-            cuerpo.innerHTML = "<tr><td colspan='3'>Cargando...</td></tr>";
-            try {
-                const res = await fetch(URL_API + "?t=" + new Date().getTime());
-                const datos = await res.json();
-                cuerpo.innerHTML = "";
-                datos.forEach(fila => {
-                    // Solo filas con Pista (Columna B / fila[1])
-                    if (fila[1] && fila[1] !== "" && fila[1] !== "Pista") {
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `<td>${fila[1]}</td><td>${fila[3] || ""}</td><td><strong>${fila[2] || ""}</strong></td>`;
-                        cuerpo.appendChild(tr);
-                    }
-                });
-            } catch (e) { cuerpo.innerHTML = "<tr><td colspan='3'>Error al cargar</td></tr>"; }
+    async function enviarDatos(datos) {
+        try {
+            await fetch(URL_API, { method: 'POST', mode: 'no-cors', body: JSON.stringify(datos) });
+            alert("✅ Registrado con éxito");
+            return true;
+        } catch (e) { 
+            alert("❌ Error de envío"); 
+            return false; 
         }
-    </script>
+    }
+
+    document.getElementById('formPago').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const info = {
+            tipo: "Pagos",
+            instructor: document.getElementById('ins_pago').value,
+            estudiante: document.getElementById('estudiante_pago').value,
+            monto: document.getElementById('monto').value
+        };
+        if (await enviarDatos(info)) e.target.reset();
+    });
+
+    document.getElementById('formOcupacion').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const info = {
+            tipo: "Ocupacion",
+            pista: document.getElementById('pista_num').value,
+            group: document.getElementById('nombre_grupo').value,
+            horario: `${document.getElementById('dia_semana').value} | ${document.getElementById('hora_inicio').value} (${document.getElementById('duracion_clase').value})`,
+            instructor: document.getElementById('ins_ocupacion').value
+        };
+        if (await enviarDatos(info)) {
+            e.target.reset();
+            setTimeout(cargarCalendario, 2000);
+        }
+    });
+
+    async function cargarCalendario() {
+        const cuerpo = document.getElementById('cuerpoCalendario');
+        cuerpo.innerHTML = "<tr><td colspan='3'>Cargando...</td></tr>";
+        try {
+            const res = await fetch(URL_API + "?t=" + new Date().getTime());
+            const datos = await res.json();
+            cuerpo.innerHTML = "";
+            datos.forEach(fila => {
+                // Filtramos filas que tengan datos de pista para no llenar de vacíos
+                if (fila[1] && fila[1] !== "" && fila[1] !== "Pista") {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td>${fila[1]}</td><td>${fila[3] || ""}</td><td><strong>${fila[2] || ""}</strong></td>`;
+                    cuerpo.appendChild(tr);
+                }
+            });
+        } catch (e) { 
+            cuerpo.innerHTML = "<tr><td colspan='3'>Error al cargar el calendario</td></tr>"; 
+        }
+    }
+</script> 
 </body>
 </html>
