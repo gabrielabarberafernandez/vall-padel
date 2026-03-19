@@ -199,7 +199,7 @@
             
             baseDatosAlumnos.forEach(fila => {
                 // fila[0] = Instructor, fila[1] = Alumno
-                if (fila[0] && fila[0].toString().trim() === ins) {
+                if (fila[0] && fila[0].toString().trim() === instructor.trim()) {
                     let opt = document.createElement('option');
                     opt.value = fila[1]; opt.text = fila[1];
                     selectEst.appendChild(opt);
